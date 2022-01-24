@@ -1,0 +1,41 @@
+---
+  - name: "main"
+    hosts: myhosts
+    become: True 
+    tasks:
+
+    - name: "know cpu usage"
+      ansible.windows.win_powershell:
+      script: |
+        wmic cpu get loadpercentage
+      register: "cpu"
+
+    - name: "know Total memory available"
+      ansible.windows.win_powershell:
+      script: | 
+	    systeminfo | find "Total Physical Memory" 
+      register: "ram_tot"
+
+    - name: "know Available memory available"
+      ansible.windows.win_powershell:
+      script: |
+        systeminfo | find "Available Physical Memory" 
+      register: "ram_avail"
+
+
+    - name: "know Diskspace Details"
+      ansible.windows.win_powershell:
+      script: |
+        Get-PSDrive -PSProvider FileSystem | select Name, Root,@{n="Percent Free";e={([math]::Round($_.Free/($_.Used+$_.Free),2))*100}}
+      register: "diskspace_details"
+
+
+    - name: "know services status"
+      ansible.windows.win_powershell:
+      script: |
+        Get-Service
+      register: "services_details"
+
+    - debug: var=output.stdout_lines
+	
+...
