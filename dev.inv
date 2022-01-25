@@ -1,2 +1,13 @@
-[myhosts]
-localhost ansible_user=New
+[myhosts] #This is the group name
+<<ip-addr1>>
+<<ip-addr2>>
+<ip-addr3>>
+
+[myhosts:vars] # These are the group variables
+ansible_user=<<uname>>
+ansible_password="<<upwd>>"
+ansible_port=5986
+ansible_connection=winrm
+ansible_winrm_scheme=https
+ansible_winrm_server_cert_validation=ignore
+ansible_winrm_kerberos_delegation=true
