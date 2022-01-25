@@ -3,27 +3,44 @@
   hosts: myhosts
   
   tasks:
-    - name: "know cpu usage"
+    - name: know hostname
+      win_powershell:
+        script: hostname
+      register: host_out
+      
+    - name: know cpu usage
       win_powershell:
         script: wmic cpu get loadpercentage
-      register: "cpu"
+      register: cpu_out
    
-    - name: "know Total memory available"
+    - name: know Total memory
       win_powershell:
         script: systeminfo | find "Total Physical Memory" 
-      register: "ram_tot"
+      register: ramtot_out
       
-    - name: "know Available memory available"
+    - name: know Available memory
       win_powershell:
         script: systeminfo | find "Available Physical Memory" 
-      register: "ram_avail"
+      register: ramavail_out
     
-    - name: "know Diskspace Details"
+    - name: know Diskspace Details
       win_powershell:
         script: Get-PSDrive -PSProvider FileSystem | select Name, Root,@{n="Percent Free";e={([math]::Round($_.Free/($_.Used+$_.Free),2))*100}}
-      register: "diskspace_details"
+      register: disk_out
     
-    - name: "know services status"
+    - name: know services status
       win_powershell:
         script: Get-Service
-      register: "services_details"
+      register: services_out
+      
+    - name: print debug msg
+      vars:
+        msg: |
+             hostname: {{ host_out.stdout }}
+             cpu_usage: {{ cpu_out.stdout }}
+             tot_memory: {{ ramtot_out.stdout }}
+             avail_memory: {{ ramavail_out.stdout }}
+             disk_details: {{ disk_out.stdout }}
+             services_status: {{ services_out.stdout }}
+      debug:
+        msg: "{{ msg.split('\n') }}"
